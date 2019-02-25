@@ -1,0 +1,31 @@
+#!/bin/bash
+
+build()	{
+	grep '^root:' /etc/shadow > "${BUILDROOT}${dest}/etc/shadow"
+	grep '^root:' /etc/passwd > "${BUILDROOT}${dest}/etc/passwd"
+	add_file /etc/shells
+	add_file /etc/group
+	add_file /etc/login.defs
+	add_file /etc/environment
+	add_file /etc/nsswitch.conf
+	for i in /etc/security/* /etc/pam.d/*; do
+		add_file "${i}"
+	done
+
+	add_binary /usr/bin/login
+	add_binary /usr/bin/lastlog
+	add_binary /var/log/lastlog
+	for i in /usr/lib/security/* /usr/lib/libnss*; do
+		if [ -f "${i}" ]; then
+			add_binary "${i}"
+		fi
+	done
+
+	add_runscript
+}
+
+help() {
+	cat <<HELPEOF
+This hook installs the necessary files for a login shell in the initramfs
+HELPEOF
+}
